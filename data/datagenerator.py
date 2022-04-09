@@ -19,10 +19,10 @@ class DataGenerator :
     - bpe_model : 
         Subword sentencepiece model
     - padding_idx : int
-        The index of the padding
+        The index of the pad token
     - vocab_size : int
-        The size of the sentencepiece subwords vocabulary
-    - self.encoded_examples : list
+        The size subwords vocabulary
+    - encoded_examples : list
         This list of all sentences encoded into vectors
     - size : int
         The number of sentence (or sequences if GPT-type sequences are used)
@@ -38,12 +38,13 @@ class DataGenerator :
         self.encoded_examples.sort(key=lambda utterance: len(utterance[0])) # sort by length for GPU efficient use
         self.size = len(self.encoded_examples)
     
-    def examples(self, utterance: str) :
+    def examples(self, utterance: str) -> tuple :
         """
         """
-        return self.encode(utterance, add_bos=True, add_eos=False), self.encode(utterance, add_eos=True, add_bos=False)
+        return (self.encode(utterance, add_bos=True, add_eos=False),
+                self.encode(utterance, add_eos=True, add_bos=False))
     
-    def generate_examples(self, utterances) :
+    def generate_examples(self, utterances: list) -> List[list] :
         """
         """
         return [self.examples(utterance.rstrip()) for utterance in utterances if len(utterance.split(" ")) > 5]
@@ -61,18 +62,18 @@ class DataGenerator :
     def id_to_piece(self, utterance: List[int]) -> str :
         return self.bpe_model.id_to_piece(utterance)
 
-    def pad(self, utterances: List[list], max_utterance_size) :
+    def pad(self, utterances: List[list], max_utterance_size: int) -> None:
         """
         """
         for utterance in utterances :
             utterance.extend([self.padding_idx] * (max_utterance_size - len(utterance)))
 
-    def __getitem__(self, idx) :
+    def __getitem__(self, idx: int) -> tuple :
         """
         """
         return [self.encoded_examples[idx][0]], [self.encoded_examples[idx][1]]
     
-    def prompt(self) :
+    def prompt(self) -> List[int] :
         founded_prompt = []
         while len(founded_prompt) < 2 or len(founded_prompt) > 20 :
             random_prompt = randrange(self.size)
@@ -83,12 +84,12 @@ class DataGenerator :
         return founded_prompt
 
     
-    def __call__(self, batch_size, shuffling=False) :
+    def __call__(self, batch_size: int, shuffling: bool=False) -> Iterator[List[List[int]]] :
         """
         """
         return self.batchify(batch_size, shuffling=shuffling)
 
-    def batchify(self, batch_size, shuffling=False) -> Iterator[List[List[int]]] :
+    def batchify(self, batch_size: int, shuffling: bool=False) -> Iterator[List[List[int]]] :
         """
         """
         if shuffling :
