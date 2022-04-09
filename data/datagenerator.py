@@ -1,4 +1,4 @@
-"""This module contains a class that enable to process \
+"""This module contains a class that allows to process \
    the data. This class can be used to generate batches, \
    to encode sentences, and to generate prompts.
 """
