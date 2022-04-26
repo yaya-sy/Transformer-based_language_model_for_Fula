@@ -146,7 +146,7 @@ class TransformersLM(nn.Module) :
 
         tok_embedd = self.tok_embedding(x)
         pos = torch.arange(0, seq_len).unsqueeze(0).repeat(batch_size, 1).to(self.device)
-        pos[padding_mask] = 10_000
+        pos[padding_mask] = self.pos_padding
         pos_embed = self.pos_embedding(pos)
         embed = tok_embedd + pos_embed
 
