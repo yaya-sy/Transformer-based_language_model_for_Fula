@@ -120,14 +120,14 @@ class TransformersLM(nn.Module) :
         self.ff_size = ff_size
         self.dropout = dropout
         self.device = device
-        self.padding_pos = max_len
+        self.pos_padding = max_len
 
         self.tok_embedding = nn.Embedding(num_embeddings=vocab_size,
                                             embedding_dim=embed_dim,
                                             padding_idx=padding_idx).to(device)
         self.pos_embedding = nn.Embedding(num_embeddings=max_len + 1,
                                             embedding_dim=embed_dim,
-                                            padding_idx=self.padding_pos).to(device)
+                                            padding_idx=self.pos_padding).to(device)
 
         self.decoder = TransformersDecoder(
             padding_idx=padding_idx,
